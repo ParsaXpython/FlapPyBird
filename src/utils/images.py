@@ -4,6 +4,7 @@ from typing import List, Tuple
 import pygame
 
 from .constants import BACKGROUNDS, PIPES, PLAYERS
+from .resources import resource_path
 
 
 class Images:
@@ -17,22 +18,24 @@ class Images:
 
     def __init__(self) -> None:
         self.numbers = list(
-            (
-                pygame.image.load(f"assets/sprites/{num}.png").convert_alpha()
-                for num in range(10)
+            map(
+                lambda num: pygame.image.load(
+                    resource_path(f"assets/sprites/{num}.png")
+                ).convert_alpha(),
+                range(10)
             )
         )
 
         # game over sprite
         self.game_over = pygame.image.load(
-            "assets/sprites/gameover.png"
+            resource_path("assets/sprites/gameover.png")
         ).convert_alpha()
         # welcome_message sprite for welcome screen
         self.welcome_message = pygame.image.load(
-            "assets/sprites/message.png"
+            resource_path("assets/sprites/message.png")
         ).convert_alpha()
         # base (ground) sprite
-        self.base = pygame.image.load("assets/sprites/base.png").convert_alpha()
+        self.base = pygame.image.load(resource_path("assets/sprites/base.png")).convert_alpha()
         self.randomize()
 
     def randomize(self):
@@ -43,17 +46,29 @@ class Images:
         # select random pipe sprites
         rand_pipe = random.randint(0, len(PIPES) - 1)
 
-        self.background = pygame.image.load(BACKGROUNDS[rand_bg]).convert()
+        self.background = pygame.image.load(
+            resource_path(BACKGROUNDS[rand_bg])
+        ).convert()
         self.player = (
-            pygame.image.load(PLAYERS[rand_player][0]).convert_alpha(),
-            pygame.image.load(PLAYERS[rand_player][1]).convert_alpha(),
-            pygame.image.load(PLAYERS[rand_player][2]).convert_alpha(),
+            pygame.image.load(
+                resource_path(PLAYERS[rand_player][0])
+            ).convert_alpha(),
+            pygame.image.load(
+                resource_path(PLAYERS[rand_player][1])
+            ).convert_alpha(),
+            pygame.image.load(
+                resource_path(PLAYERS[rand_player][2])
+            ).convert_alpha(),
         )
         self.pipe = (
             pygame.transform.flip(
-                pygame.image.load(PIPES[rand_pipe]).convert_alpha(),
+                pygame.image.load(
+                    resource_path(PIPES[rand_pipe])
+                ).convert_alpha(),
                 False,
                 True,
             ),
-            pygame.image.load(PIPES[rand_pipe]).convert_alpha(),
+            pygame.image.load(
+                resource_path(PIPES[rand_pipe])
+            ).convert_alpha(),
         )

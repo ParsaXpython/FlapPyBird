@@ -35,7 +35,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed --name FlapPyBird-${{ matrix.arch }} --add-data "assets;assets" --add-data "src;src" main.py
+          pyinstaller --onefile --windowed --name FlapPyBird-${{ matrix.arch }} --add-data "assets;assets" --add-data "src;src" -i flappy.ico main.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -107,7 +107,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed --name FlapPyBird-${{ matrix.arch }} --add-data "assets:assets" --add-data "src:src" main.py
+          pyinstaller --onefile --windowed --name FlapPyBird-${{ matrix.arch }} --add-data "assets:assets" --add-data "src:src" -i flappy.ico main.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

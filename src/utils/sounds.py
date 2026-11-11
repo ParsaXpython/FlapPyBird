@@ -2,6 +2,8 @@ import sys
 
 import pygame
 
+from .resources import resource_path
+
 
 class Sounds:
     die: pygame.mixer.Sound
@@ -16,8 +18,18 @@ class Sounds:
         else:
             ext = "ogg"
 
-        self.die = pygame.mixer.Sound(f"assets/audio/die.{ext}")
-        self.hit = pygame.mixer.Sound(f"assets/audio/hit.{ext}")
-        self.point = pygame.mixer.Sound(f"assets/audio/point.{ext}")
-        self.swoosh = pygame.mixer.Sound(f"assets/audio/swoosh.{ext}")
-        self.wing = pygame.mixer.Sound(f"assets/audio/wing.{ext}")
+        self.die = pygame.mixer.Sound(
+            resource_path(f"assets/audio/die.{ext}")
+        )
+        self.hit = pygame.mixer.Sound(
+            resource_path(f"assets/audio/hit.{ext}")
+        )
+        self.point = pygame.mixer.Sound(
+            resource_path(f"assets/audio/point.{ext}")
+        )
+        self.swoosh = pygame.mixer.Sound(
+            resource_path(f"assets/audio/swoosh.{ext}")
+        )
+        self.wing = pygame.mixer.Sound(
+            resource_path(f"assets/audio/wing.{ext}")
+        )
