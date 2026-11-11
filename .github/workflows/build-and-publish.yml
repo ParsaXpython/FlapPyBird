@@ -1,23 +1,60 @@
-name: Build & Publish
+name: Test Build Matrix
 
 on:
   push:
     branches: [master]
-    tags: ['v*']
-  pull_request:
-    branches: [master]
   workflow_dispatch:
 
-permissions:
-  contents: write   # required for creating releases on tag push
-
 jobs:
-  build:
-    name: Build desktop package
+  build-windows:
+    name: Windows ${{ matrix.arch }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            python-arch: x64
+          - arch: x86
+            python-arch: x86
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-arch }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: ${{ matrix.python-arch }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pygame pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --name FlapPyBird-${{ matrix.arch }} --add-data "assets;assets" --add-data "src;src" main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlapPyBird-windows-${{ matrix.arch }}
+          path: dist/FlapPyBird-${{ matrix.arch }}.exe
+          if-no-files-found: error
+
+  build-linux:
+    name: Linux x64
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -26,35 +63,55 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: make init
-
-      - name: Package desktop build
         run: |
-          mkdir -p dist
-          zip -r dist/FlapPyBird-desktop.zip \
-            main.py src assets pyproject.toml Makefile README.md
+          python -m pip install --upgrade pip
+          pip install pygame pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --name FlapPyBird-x64 --add-data "assets:assets" --add-data "src:src" main.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: flappybird-desktop
-          path: dist/FlapPyBird-desktop.zip
+          name: FlapPyBird-linux-x64
+          path: dist/FlapPyBird-x64
           if-no-files-found: error
 
-  publish-release:
-    name: Publish GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
-    runs-on: ubuntu-latest
+  build-macos:
+    name: macOS ${{ matrix.arch }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            python-arch: x64
+          - arch: arm64
+            python-arch: arm64
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: flappybird-desktop
-          path: artifacts
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Create release
-        uses: softprops/action-gh-release@v2
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          files: artifacts/FlapPyBird-desktop.zip
-          generate_release_notes: true
+          python-version: '3.11'
+          architecture: ${{ matrix.python-arch }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pygame pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --name FlapPyBird-${{ matrix.arch }} --add-data "assets:assets" --add-data "src:src" main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlapPyBird-macos-${{ matrix.arch }}
+          path: dist/FlapPyBird-${{ matrix.arch }}
+          if-no-files-found: error
